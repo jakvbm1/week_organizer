@@ -2,10 +2,10 @@
 import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import 'package:week_organizer/model/Daos/activity_dao.dart';
-import 'package:week_organizer/model/Daos/archived_activity_dao.dart';
-import 'package:week_organizer/model/Daos/archived_reccuring_activity_dao.dart';
-import 'package:week_organizer/model/Daos/reccuring_activity_dao.dart';
+import 'package:week_organizer/model/daos/activity_dao.dart';
+import 'package:week_organizer/model/daos/archived_activity_dao.dart';
+import 'package:week_organizer/model/daos/archived_reccuring_activity_dao.dart';
+import 'package:week_organizer/model/daos/reccuring_activity_dao.dart';
 import 'package:week_organizer/model/entities/enums.dart';
 import 'package:week_organizer/model/entities/recurring_activity.dart';
 import 'package:week_organizer/model/entities/activity.dart';
@@ -90,11 +90,11 @@ class NullableStatusConverter extends TypeConverter<Status?, int?> {
 
 @TypeConverters([
   DateTimeConverter, 
-  NullableDateTimeConverter,
+  //NullableDateTimeConverter,
   StatusConverter,
   WeekdayConverter,
-  NullableWeekdayConverter,
-  NullableStatusConverter
+  //NullableWeekdayConverter,
+  //NullableStatusConverter
 ])
 @Database(version: 1, entities: [Activity, RecurringActivity, ArchivedActivity, ArchivedRecurringActivity])
 abstract class AppDatabase extends FloorDatabase {
@@ -102,4 +102,7 @@ abstract class AppDatabase extends FloorDatabase {
   RecurringActivityDao get reccuringActivityDao;
   ArchivedActivityDao get archivedActivityDao;
   ArchivedRecurringActivityDao get archivedRecurringActivityDao;
+
+  
 }
+

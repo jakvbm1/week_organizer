@@ -78,6 +78,8 @@ class _$AppDatabase extends AppDatabase {
 
   ArchivedActivityDao? _archivedActivityDaoInstance;
 
+  ArchivedRecurringActivityDao? _archivedRecurringActivityDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -129,6 +131,12 @@ class _$AppDatabase extends AppDatabase {
   ArchivedActivityDao get archivedActivityDao {
     return _archivedActivityDaoInstance ??=
         _$ArchivedActivityDao(database, changeListener);
+  }
+
+  @override
+  ArchivedRecurringActivityDao get archivedRecurringActivityDao {
+    return _archivedRecurringActivityDaoInstance ??=
+        _$ArchivedRecurringActivityDao(database, changeListener);
   }
 }
 
@@ -681,10 +689,162 @@ class _$ArchivedActivityDao extends ArchivedActivityDao {
   }
 }
 
+class _$ArchivedRecurringActivityDao extends ArchivedRecurringActivityDao {
+  _$ArchivedRecurringActivityDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _archivedRecurringActivityInsertionAdapter = InsertionAdapter(
+            database,
+            'ArchivedRecurringActivity',
+            (ArchivedRecurringActivity item) => <String, Object?>{
+                  'id': item.id,
+                  'originalId': item.originalId,
+                  'name': item.name,
+                  'description': item.description,
+                  'suggestedHours': item.suggestedHours,
+                  'reportedHours': item.reportedHours,
+                  'weekStartDate':
+                      _dateTimeConverter.encode(item.weekStartDate),
+                  'archivedAt': _dateTimeConverter.encode(item.archivedAt)
+                }),
+        _archivedRecurringActivityDeletionAdapter = DeletionAdapter(
+            database,
+            'ArchivedRecurringActivity',
+            ['id'],
+            (ArchivedRecurringActivity item) => <String, Object?>{
+                  'id': item.id,
+                  'originalId': item.originalId,
+                  'name': item.name,
+                  'description': item.description,
+                  'suggestedHours': item.suggestedHours,
+                  'reportedHours': item.reportedHours,
+                  'weekStartDate':
+                      _dateTimeConverter.encode(item.weekStartDate),
+                  'archivedAt': _dateTimeConverter.encode(item.archivedAt)
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ArchivedRecurringActivity>
+      _archivedRecurringActivityInsertionAdapter;
+
+  final DeletionAdapter<ArchivedRecurringActivity>
+      _archivedRecurringActivityDeletionAdapter;
+
+  @override
+  Future<List<ArchivedRecurringActivity>>
+      findAllArchivedRecurringActivities() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ArchivedRecurringActivity ORDER BY archivedAt DESC',
+        mapper: (Map<String, Object?> row) => ArchivedRecurringActivity(
+            row['id'] as int,
+            row['originalId'] as int,
+            row['name'] as String,
+            row['description'] as String?,
+            row['suggestedHours'] as int,
+            row['reportedHours'] as double,
+            _dateTimeConverter.decode(row['weekStartDate'] as int),
+            _dateTimeConverter.decode(row['archivedAt'] as int)));
+  }
+
+  @override
+  Future<List<ArchivedRecurringActivity>> findByWeekStartDate(
+      DateTime weekStartDate) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ArchivedRecurringActivity WHERE weekStartDate = ?1',
+        mapper: (Map<String, Object?> row) => ArchivedRecurringActivity(
+            row['id'] as int,
+            row['originalId'] as int,
+            row['name'] as String,
+            row['description'] as String?,
+            row['suggestedHours'] as int,
+            row['reportedHours'] as double,
+            _dateTimeConverter.decode(row['weekStartDate'] as int),
+            _dateTimeConverter.decode(row['archivedAt'] as int)),
+        arguments: [_dateTimeConverter.encode(weekStartDate)]);
+  }
+
+  @override
+  Future<List<ArchivedRecurringActivity>> findByOriginalId(
+      int originalId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ArchivedRecurringActivity WHERE originalId = ?1 ORDER BY archivedAt DESC',
+        mapper: (Map<String, Object?> row) => ArchivedRecurringActivity(row['id'] as int, row['originalId'] as int, row['name'] as String, row['description'] as String?, row['suggestedHours'] as int, row['reportedHours'] as double, _dateTimeConverter.decode(row['weekStartDate'] as int), _dateTimeConverter.decode(row['archivedAt'] as int)),
+        arguments: [originalId]);
+  }
+
+  @override
+  Future<List<ArchivedRecurringActivity>> findByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM ArchivedRecurringActivity WHERE weekStartDate BETWEEN ?1 AND ?2',
+        mapper: (Map<String, Object?> row) => ArchivedRecurringActivity(row['id'] as int, row['originalId'] as int, row['name'] as String, row['description'] as String?, row['suggestedHours'] as int, row['reportedHours'] as double, _dateTimeConverter.decode(row['weekStartDate'] as int), _dateTimeConverter.decode(row['archivedAt'] as int)),
+        arguments: [
+          _dateTimeConverter.encode(startDate),
+          _dateTimeConverter.encode(endDate)
+        ]);
+  }
+
+  @override
+  Future<void> deleteOldArchives(DateTime cutoffDate) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM ArchivedRecurringActivity WHERE weekStartDate < ?1',
+        arguments: [_dateTimeConverter.encode(cutoffDate)]);
+  }
+
+  @override
+  Future<double?> getTotalReportedHoursForWeek(DateTime weekStartDate) async {
+    return _queryAdapter.query(
+        'SELECT SUM(reportedHours) FROM ArchivedRecurringActivity WHERE weekStartDate = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as double,
+        arguments: [_dateTimeConverter.encode(weekStartDate)]);
+  }
+
+  @override
+  Future<double?> getAverageReportedHoursForActivity(int originalId) async {
+    return _queryAdapter.query(
+        'SELECT AVG(reportedHours) FROM ArchivedRecurringActivity WHERE originalId = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as double,
+        arguments: [originalId]);
+  }
+
+  @override
+  Future<List<DateTime>> getAvailableWeeks() async {
+    return _queryAdapter.queryList(
+        'SELECT DISTINCT weekStartDate FROM ArchivedRecurringActivity ORDER BY weekStartDate DESC',
+        mapper: (Map<String, Object?> row) =>
+            _dateTimeConverter.decode(row.values.first as int));
+  }
+
+  @override
+  Future<void> insertArchivedRecurringActivity(
+      ArchivedRecurringActivity activity) async {
+    await _archivedRecurringActivityInsertionAdapter.insert(
+        activity, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> insertArchivedRecurringActivities(
+      List<ArchivedRecurringActivity> activities) async {
+    await _archivedRecurringActivityInsertionAdapter.insertList(
+        activities, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteArchivedRecurringActivity(
+      ArchivedRecurringActivity activity) async {
+    await _archivedRecurringActivityDeletionAdapter.delete(activity);
+  }
+}
+
 // ignore_for_file: unused_element
 final _dateTimeConverter = DateTimeConverter();
-final _nullableDateTimeConverter = NullableDateTimeConverter();
 final _statusConverter = StatusConverter();
 final _weekdayConverter = WeekdayConverter();
-final _nullableWeekdayConverter = NullableWeekdayConverter();
-final _nullableStatusConverter = NullableStatusConverter();

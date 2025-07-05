@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:week_organizer/di/service_locator.dart';
 import 'package:week_organizer/view/mainPage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupServiceLocator();
   runApp(const MyApp());
 }
 

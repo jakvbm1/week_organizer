@@ -1,29 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:week_organizer/model/repositories/activity_repository.dart';
+import 'package:week_organizer/model/repositories/archive_repository.dart';
+import 'package:week_organizer/model/repositories/reccuring_activity_repository.dart';
+import 'package:week_organizer/utils/archive_scheduler.dart';
+import 'package:week_organizer/view/activitiesPage.dart';
+import 'package:week_organizer/view/archivePage.dart';
+import 'package:week_organizer/view/reccurringPage.dart';
 
-class Mainpage extends StatefulWidget
-{
+import 'package:week_organizer/model/database.dart';
+import 'package:week_organizer/viewmodel/archive_view_model.dart'; // import your Floor db
+
+class Mainpage extends StatefulWidget {
+  const Mainpage({super.key});
+
   @override
   State<Mainpage> createState() => _MainpageState();
 }
 
-
-
 class _MainpageState extends State<Mainpage> {
-
   int _selectedIndex = 0;
 
-  static List<Widget> _widgetOptions = <Widget>
-  [
-    Text('Index 0: Home'),
-    Text('Index 1: Business'),
-    Text('Index 2: School'),
-  ];
+  ActivityRepository? _activityRepository;
+  RecurringActivityRepository? _reccurringActivityRepository;
+  ArchiveRepository? _archiveRepository;
+
+  bool _isLoading = true;
+
+  late List<Widget> _widgetOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDatabaseAndRepo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _checkAndRunArchive(context);
+  });
+  }
+
+  Future<void> _initDatabaseAndRepo() async {
+    final database = await $FloorAppDatabase
+        .databaseBuilder('app_database.db')
+        .build();
+
+    final activityDao = database.activityDao;
+    final reccuringActivityDao = database.reccuringActivityDao;
+    final archiveDao = database.archivedActivityDao;
+    final rArchiveDao = database.archivedRecurringActivityDao;
+    _activityRepository = ActivityRepository(activityDao);
+    _reccurringActivityRepository = RecurringActivityRepository(reccuringActivityDao);
+    _archiveRepository = ArchiveRepository(archiveDao, rArchiveDao);
+    // Initialize widget options now that repository is ready
+    _widgetOptions = [
+      ActivityPage(repository: _activityRepository!),
+      ReccurringPage(repository: _reccurringActivityRepository!),
+      ArchivePage(archiveRepository: _archiveRepository!, activityRepository: _activityRepository!, recurringActivityRepository: _reccurringActivityRepository!),
+    ];
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _onItemTapped(int i) {
+    setState(() {
+      _selectedIndex = i;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Week organizer"),
+        title: const Text("Week organizer"),
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -36,10 +91,8 @@ class _MainpageState extends State<Mainpage> {
         ),
       ),
       body: Center(child: _widgetOptions[_selectedIndex]),
-      drawer: Drawer
-      (
-child: ListView(
-          // Important: Remove any padding from the ListView.
+      drawer: Drawer(
+        child: ListView(
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
@@ -47,32 +100,26 @@ child: ListView(
               child: Text('Drawer Header'),
             ),
             ListTile(
-              title: const Text('Home'),
+              title: const Text('Daily activities'),
               selected: _selectedIndex == 0,
               onTap: () {
-                // Update the state of the app
                 _onItemTapped(0);
-                // Then close the drawer
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Business'),
+              title: const Text('Reccurring activities'),
               selected: _selectedIndex == 1,
               onTap: () {
-                // Update the state of the app
                 _onItemTapped(1);
-                // Then close the drawer
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('School'),
+              title: const Text('Archive'),
               selected: _selectedIndex == 2,
               onTap: () {
-                // Update the state of the app
                 _onItemTapped(2);
-                // Then close the drawer
                 Navigator.pop(context);
               },
             ),
@@ -81,11 +128,12 @@ child: ListView(
       ),
     );
   }
-  
-  void _onItemTapped(int i) 
-  {
-    setState(() {
-    _selectedIndex = i;
-    });
+
+  void _checkAndRunArchive(BuildContext context) async {
+  final shouldRun = await shouldRunWeeklyArchive();
+  if (shouldRun) {
+    final archiveVM = ArchiveViewModel(_archiveRepository!, _activityRepository!, _reccurringActivityRepository!);
+    await archiveVM.runWeeklyArchive();
   }
+}
 }

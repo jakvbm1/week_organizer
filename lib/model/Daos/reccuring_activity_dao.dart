@@ -10,7 +10,7 @@ abstract class RecurringActivityDao {
   Future<RecurringActivity?> findRecurringActivityById(int id);
 
   @insert
-  Future<void> insertRecurringActivity(RecurringActivity activity);
+  Future<int> insertRecurringActivity(RecurringActivity activity);
 
   @insert
   Future<void> insertRecurringActivities(List<RecurringActivity> activities);

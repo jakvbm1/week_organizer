@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:week_organizer/di/service_locator.dart';
+import 'package:week_organizer/view/cornflower_theme.dart';
 import 'package:week_organizer/view/mainPage.dart';
 
 void main() async {
@@ -16,10 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlue.shade100),
-        useMaterial3: true,
-      ),
+      theme: cornflowerBlueTheme,
       home:  Mainpage()
     );
   }

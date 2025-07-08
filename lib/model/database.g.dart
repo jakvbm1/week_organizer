@@ -483,8 +483,8 @@ class _$RecurringActivityDao extends RecurringActivityDao {
   }
 
   @override
-  Future<void> insertRecurringActivity(RecurringActivity activity) async {
-    await _recurringActivityInsertionAdapter.insert(
+  Future<int> insertRecurringActivity(RecurringActivity activity) {
+    return _recurringActivityInsertionAdapter.insertAndReturnId(
         activity, OnConflictStrategy.abort);
   }
 

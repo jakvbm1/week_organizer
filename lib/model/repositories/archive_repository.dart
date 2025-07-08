@@ -86,7 +86,7 @@ class ArchiveRepository {
   Future<void> archiveRecurringActivity(RecurringActivity activity, DateTime weekStartDate) async {
     final archivedActivity = ArchivedRecurringActivity(
       0, // Will be auto-generated
-      activity.id,
+      activity.id!,
       activity.name,
       activity.description,
       activity.suggestedHours,
@@ -116,7 +116,7 @@ class ArchiveRepository {
   Future<void> archiveRecurringActivities(List<RecurringActivity> activities, DateTime weekStartDate) async {
     final archivedActivities = activities.map((activity) => ArchivedRecurringActivity(
       0,
-      activity.id,
+      activity.id!,
       activity.name,
       activity.description,
       activity.suggestedHours,

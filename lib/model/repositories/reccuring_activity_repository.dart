@@ -16,8 +16,8 @@ class RecurringActivityRepository {
     return await _recurringActivityDao.findRecurringActivityById(id);
   }
 
-  Future<void> insertRecurringActivity(RecurringActivity activity) async {
-    await _recurringActivityDao.insertRecurringActivity(activity);
+  Future<int> insertRecurringActivity(RecurringActivity activity) async {
+  return await _recurringActivityDao.insertRecurringActivity(activity);
   }
 
   Future<void> insertRecurringActivities(List<RecurringActivity> activities) async {

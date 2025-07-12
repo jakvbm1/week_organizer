@@ -7,7 +7,7 @@ import 'package:week_organizer/viewmodel/activity_view_model.dart';
 class ActivityPage extends StatelessWidget {
   final ActivityRepository repository;
 
-  const ActivityPage({Key? key, required this.repository}) : super(key: key);
+  const ActivityPage({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class ActivityPage extends StatelessWidget {
 }
 
 class _ActivityPageBody extends StatelessWidget {
-  const _ActivityPageBody({Key? key}) : super(key: key);
+  const _ActivityPageBody({super.key});
 
   void _showAddActivityDialog(BuildContext context) {
     final theme = Theme.of(context);
@@ -96,7 +96,7 @@ class _ActivityPageBody extends StatelessWidget {
         final grouped = vm.groupedActivities;
 
         return Scaffold(
-          backgroundColor: theme.colorScheme.background,
+          backgroundColor: theme.colorScheme.surface,
           appBar: AppBar(
             title: Text("Weekly Activities", style: theme.textTheme.titleLarge),
             backgroundColor: theme.colorScheme.primary,
@@ -117,8 +117,8 @@ class _ActivityPageBody extends StatelessWidget {
                     vm.toggleExpanded(day, val);
                   },
                   title: Text(vm.weekdayToString(day), style: theme.textTheme.titleMedium),
-                  children: activities.isEmpty
-                      ? [
+                  children: activities.isEmpty? 
+                  [
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text("No activities", style: theme.textTheme.bodyMedium),
@@ -126,21 +126,36 @@ class _ActivityPageBody extends StatelessWidget {
                         ]
                       : activities.map((activity) {
                           return ListTile(
+                            
                             title: Text(activity.name, style: theme.textTheme.bodyLarge),
                             subtitle: activity.description != null
                                 ? Text(activity.description!, style: theme.textTheme.bodyMedium)
                                 : null,
-                            trailing: activity.status == Status.UNFINISHED
-                                ? ElevatedButton(
-                                    onPressed: () async {
-                                      await vm.markActivityCompleted(activity);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: theme.colorScheme.primary,
-                                      foregroundColor: theme.colorScheme.onPrimary,
+                            trailing: activity.status == Status.UNFINISHED || activity.status == Status.TRANSFERED
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        await vm.markActivityCompleted(activity);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: theme.colorScheme.primary,
+                                        foregroundColor: theme.colorScheme.onPrimary,
+                                      ),
+                                      child: const Text("Mark Done"),
                                     ),
-                                    child: const Text("Mark Done"),
-                                  )
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      onPressed: () async {
+                                        await vm.deleteActivity(activity);
+                                        vm.loadActivities();
+                                      },                                      
+                                      icon: Icon(Icons.delete, color: theme.colorScheme.error),
+                                    ),
+                                  ],
+                                )
+
                                 : Chip(
                                     label: Text(activity.status.name),
                                     backgroundColor: vm.statusColor(activity.status, context),

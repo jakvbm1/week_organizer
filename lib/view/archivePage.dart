@@ -13,11 +13,11 @@ class ArchivePage extends StatefulWidget {
   final RecurringActivityRepository recurringActivityRepository;
 
   const ArchivePage({
-    Key? key,
+    super.key,
     required this.archiveRepository,
     required this.activityRepository,
     required this.recurringActivityRepository,
-  }) : super(key: key);
+  });
 
   @override
   State<ArchivePage> createState() => _ArchivePageState();
@@ -62,7 +62,7 @@ class _ArchivePageState extends State<ArchivePage> {
           }
 
           return Scaffold(
-            backgroundColor: theme.colorScheme.background,
+            backgroundColor: theme.colorScheme.surface,
             appBar: AppBar(
               title: Text("Archive", style: theme.textTheme.titleLarge),
               backgroundColor: theme.colorScheme.primary,

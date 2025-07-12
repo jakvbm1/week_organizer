@@ -8,7 +8,7 @@ import 'package:week_organizer/viewmodel/reccurring_activity_view_model.dart';
 class ReccurringPage extends StatelessWidget {
   final RecurringActivityRepository repository;
 
-  const ReccurringPage({Key? key, required this.repository}) : super(key: key);
+  const ReccurringPage({super.key, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class ReccurringPage extends StatelessWidget {
 }
 
 class RecurringActivityView extends StatefulWidget {
-  const RecurringActivityView({Key? key}) : super(key: key);
+  const RecurringActivityView({super.key});
 
   @override
   State<RecurringActivityView> createState() => _RecurringActivityViewState();
@@ -75,7 +75,6 @@ class _RecurringActivityViewState extends State<RecurringActivityView> {
               final hours = int.tryParse(suggestedHoursController.text.trim());
 
               if (name.isNotEmpty && hours != null) {
-                // ID 0 or null, DB should generate ID
                 final newActivity = RecurringActivity(null, name, description.isEmpty ? null : description, hours, 0);
                 await vm.addActivity(newActivity);
                 Navigator.of(context).pop();

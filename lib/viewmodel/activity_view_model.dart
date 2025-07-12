@@ -71,6 +71,12 @@ class ActivityViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteActivity(Activity activity) async
+  {
+    await _repository.deleteActivity(activity);
+    notifyListeners();
+  }
+
   Future<void> markActivityCompleted(Activity activity) async {
     activity.status = Status.COMPLETED;
     await _repository.updateActivity(activity);

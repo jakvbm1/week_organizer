@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:week_organizer/model/repositories/activity_repository.dart';
 import 'package:week_organizer/model/repositories/archive_repository.dart';
 import 'package:week_organizer/model/repositories/reccuring_activity_repository.dart';
@@ -95,9 +94,15 @@ class _MainpageState extends State<Mainpage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text('Drawer Header'),
+            DrawerHeader(
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondary),
+              //child: const Text('Tab selection'),
+              child: const OverflowBox
+              (
+                maxHeight: double.infinity,
+                maxWidth: double.infinity,
+                alignment: Alignment.bottomCenter,
+                child: Image(image: AssetImage('assets/sprite.png'), height: 60, fit: BoxFit.contain,)),
             ),
             ListTile(
               title: const Text('Daily activities'),

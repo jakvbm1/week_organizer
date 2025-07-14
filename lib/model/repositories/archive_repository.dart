@@ -100,7 +100,7 @@ class ArchiveRepository {
 
   Future<void> archiveActivities(List<Activity> activities, DateTime weekStartDate) async {
     final archivedActivities = activities.map((activity) => ArchivedActivity(
-      0,
+      null,
       activity.id,
       activity.name,
       activity.description,
@@ -115,7 +115,7 @@ class ArchiveRepository {
 
   Future<void> archiveRecurringActivities(List<RecurringActivity> activities, DateTime weekStartDate) async {
     final archivedActivities = activities.map((activity) => ArchivedRecurringActivity(
-      0,
+      null,
       activity.id!,
       activity.name,
       activity.description,

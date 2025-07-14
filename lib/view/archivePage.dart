@@ -58,6 +58,12 @@ class _ArchivePageState extends State<ArchivePage> {
             return Scaffold(
               appBar: AppBar(title: Text("Archive", style: theme.textTheme.titleLarge)),
               body: Center(child: Text("No archived items", style: theme.textTheme.bodyMedium)),
+               floatingActionButton: FloatingActionButton
+               (
+                  onPressed: () =>{vm.archiveCurrentWeek(DateTime.now())},
+                  backgroundColor: theme.colorScheme.primary,
+                  child: Icon(Icons.add, color: theme.colorScheme.onPrimary),
+               )
             );
           }
 

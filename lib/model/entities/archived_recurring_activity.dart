@@ -4,7 +4,7 @@ import 'package:floor/floor.dart';
 
 class ArchivedRecurringActivity {
   @primaryKey
-  final int id;
+  final int? id;
   final int originalId; // References the original RecurringActivity
   final String name;
   final String? description;

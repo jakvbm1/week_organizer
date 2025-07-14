@@ -66,13 +66,16 @@ class ArchiveViewModel extends ChangeNotifier {
   // Archive completed
   await _archiveRepository.archiveActivities(completed, weekStartDate);
 
-  // Mark not completed as transferred
   for (var a in notCompleted) {
     a.status = Status.TRANSFERED;
     await _activityRepository.updateActivity(a);
   }
 
-  // Archive recurring and reset reported hours
+  for (var a in completed)
+  {
+    await _activityRepository.deleteActivity(a);
+  }
+
   for (var r in recurringActivities) {
     await _archiveRepository.archiveRecurringActivity(r, weekStartDate);
     r.reportedHours = 0;
@@ -101,6 +104,11 @@ class ArchiveViewModel extends ChangeNotifier {
       act.status = Status.TRANSFERED;
       await _activityRepository.updateActivity(act);
     }
+
+      for (var a in completedActivities)
+  {
+    await _activityRepository.deleteActivity(a);
+  }
 
     // 5. Archive recurring activities and reset reportedHours to 0
     await _archiveRepository.archiveRecurringActivities(recurringActivities, weekStartDate);

@@ -4,7 +4,7 @@ import 'package:week_organizer/model/entities/enums.dart';
 @entity
 class ArchivedActivity {
   @primaryKey
-  final int id;
+  int? id;
   final int originalId; // References the original Activity
   final String name;
   final String? description;

@@ -85,7 +85,7 @@ class ArchiveRepository {
 
   Future<void> archiveRecurringActivity(RecurringActivity activity, DateTime weekStartDate) async {
     final archivedActivity = ArchivedRecurringActivity(
-      0, // Will be auto-generated
+      null,
       activity.id!,
       activity.name,
       activity.description,
